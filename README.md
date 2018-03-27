@@ -17,6 +17,8 @@ Some Git commands:
 * Add changes to stage: `git add .`
 * Commit stage to current branch: `git commit -m"commit message"`
 * Push branches to server: `git push`
+* Delele branch: `git branch -d hengle/python_agent`
+* Check diff from stage: `git diff`
 
 Note: do NOT commit to `master` branch directly. Instead commit in your branch, push to server and create pull request.
 
