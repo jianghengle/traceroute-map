@@ -22,4 +22,4 @@ Some Git commands:
 
 Note: do NOT commit to `master` branch directly. Instead commit in your branch, push to server and create pull request.
 
-Test agent at: 129.93.175.20
+Test agent at: 129.93.175.20, `ssh -i key centos@129.93.175.20`
