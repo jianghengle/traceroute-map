@@ -1,3 +1,9 @@
+# Traceroute Map in Electron quick start
+1. go to `client` folder and `npm run build`
+2. go to `electron/app` folder, symlink the client/dist folder: `ln -s path_to_client/dist dist`
+3. `npm install`
+4. `sh start.sh`
+
 # electron-boilerplate
 
 A minimalistic boilerplate for [Electron runtime](http://electron.atom.io). Tested on Windows, macOS and Linux.  
