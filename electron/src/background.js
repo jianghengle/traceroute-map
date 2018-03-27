@@ -37,7 +37,7 @@ app.on("ready", () => {
     width: 1000,
     height: 600
   });
-
+/*
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, "app.html"),
@@ -45,6 +45,12 @@ app.on("ready", () => {
       slashes: true
     })
   );
+*/
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'dist/index.html'),
+    protocol: 'file:',
+    slashes: true,
+  }));
 
   if (env.name === "development") {
     mainWindow.openDevTools();
