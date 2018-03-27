@@ -19,3 +19,7 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+Google map is using [vue2-google-map2](https://github.com/xkjyeah/vue-google-maps).
+
+CSS framework is using [Bulma](https://bulma.io/documentation/overview/start/).
