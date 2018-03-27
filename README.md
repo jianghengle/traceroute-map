@@ -19,3 +19,5 @@ Some Git commands:
 * Push branches to server: `git push`
 
 Note: do NOT commit to `master` branch directly. Instead commit in your branch, push to server and create pull request.
+
+Test agent at: 129.93.175.20
