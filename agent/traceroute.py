@@ -3,71 +3,73 @@
 import socket
 import struct
 import sys
+import json
+from datetime import datetime
 
-# We want unbuffered stdout so we can provide live feedback for
-# each TTL. You could also use the "-u" flag to Python.
-class flushfile(file):
-    def __init__(self, f):
-        self.f = f
-    def write(self, x):
-        self.f.write(x)
-        self.f.flush()
+class Traceroute:
+    def __init__(self, dest_name, agent=None):
+        self.agent = agent
+        self.dest_name = dest_name
+        self.dest_addr = socket.gethostbyname(dest_name)
+        self.status = 'ready'
+        self.output_hop('dest', dest_name, self.dest_addr, 0)
 
-sys.stdout = flushfile(sys.stdout)
-
-def main(dest_name):
-    dest_addr = socket.gethostbyname(dest_name)
-    port = 33434
-    max_hops = 30
-    icmp = socket.getprotobyname('icmp')
-    udp = socket.getprotobyname('udp')
-    ttl = 1
-    while True:
+    def run(self):
+        self.status = 'running'
+        port = 33434
+        max_hops = 30
+        icmp = socket.getprotobyname('icmp')
+        udp = socket.getprotobyname('udp')
         recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, udp)
-        send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
-        
-        # Build the GNU timeval struct (seconds, microseconds)
-        timeout = struct.pack("ll", 5, 0)
-        
-        # Set the receive timeout so we behave more like regular traceroute
-        recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeout)
-        
         recv_socket.bind(("", port))
-        sys.stdout.write(" %d  " % ttl)
-        send_socket.sendto("", (dest_name, port))
-        curr_addr = None
-        curr_name = None
-        finished = False
-        tries = 3
-        while not finished and tries > 0:
-            try:
-                _, curr_addr = recv_socket.recvfrom(512)
-                finished = True
-                curr_addr = curr_addr[0]
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, udp)
+        hop = 1
+        while True and self.status == 'running':
+            # Build the GNU timeval struct (seconds, microseconds)
+            # Set the receive timeout so we behave more like regular traceroute
+            timeout = struct.pack("ll", 5, 0)
+            recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeout)
+            send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, hop)
+            ttl = 0
+            curr_addr = None
+            finished = False
+            tries = 3
+            while not finished and tries > 0 and self.status == 'running':
                 try:
-                    curr_name = socket.gethostbyaddr(curr_addr)[0]
-                except socket.error:
-                    curr_name = curr_addr
-            except socket.error as (errno, errmsg):
-                tries = tries - 1
-                sys.stdout.write("* ")
-        
+                    start = datetime.now()
+                    send_socket.sendto("", (self.dest_addr, port))
+                    _, curr_addr = recv_socket.recvfrom(512)
+                    ttl = (datetime.now() - start).microseconds / 1000.0
+                    finished = True
+                    curr_addr = curr_addr[0]
+                except:
+                    tries = tries - 1
+            try:
+                curr_name = socket.gethostbyaddr(curr_addr)[0]
+            except:
+                curr_name = curr_addr
+
+            self.output_hop(hop, curr_name, curr_addr, ttl)
+
+            hop = hop + 1
+            if curr_addr == self.dest_addr or hop > max_hops:
+                break
+            ttl = 0
+            curr_addr = None
+            finished = False
         send_socket.close()
         recv_socket.close()
-        
-        if not finished:
-            pass
-        
-        if curr_addr is not None:
-            curr_host = "%s (%s)" % (curr_name, curr_addr)
-        else:
-            curr_host = ""
-        sys.stdout.write("%s\n" % (curr_host))
+        self.status = 'done'
+        if self.agent != None:
+            self.agent.dispatch()
 
-        ttl += 1
-        if curr_addr == dest_addr or ttl > max_hops:
-            break
+    def output_hop(self, hop, name, ip, ttl):
+        obj = {'hop': hop, 'name': name, 'ip': ip, 'ttl': ttl}
+        json_str = json.dumps(obj)
+        print(json_str)
+        if self.agent != None and self.status != 'done':
+            self.agent.sendMessage(json_str.decode('utf-8'))
 
 if __name__ == "__main__":
-    main('google.com')
+    traceroute = Traceroute(sys.argv[1])
+    traceroute.run()
