@@ -1,16 +1,22 @@
 <template>
   <div id="app">
-    <HelloWorld/>
+    <my-header/>
+    <my-body/>
+    <my-footer/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import MyHeader from './components/MyHeader'
+import MyBody from './components/MyBody'
+import MyFooter from './components/MyFooter'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    MyHeader,
+    MyBody,
+    MyFooter
   }
 }
 </script>
