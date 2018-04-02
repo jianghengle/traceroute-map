@@ -6,7 +6,7 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
 var sources = [
-  {host: 'localhost', port: 8000, description: 'test'}
+  {host: '129.93.175.20', port: 8000, description: 'test'}
 ]
 
 var localhost = {ip: '', latitude: null, longitude: null, country_name: '', region_name: '', city: ''}
@@ -42,9 +42,11 @@ export default new Vuex.Store({
 
     startRouting (state, obj) {
       var source = makePoint()
+      source.hop = 'S'
       source.host = obj.source.host
       getGeoInfo(source)
       var destination = makePoint()
+      destination.hop = 'D'
       var hops = []
       var route = {id: obj.id, routing: true, source: source, hops: hops, destination: destination}
       if(state.routes[obj.id]){

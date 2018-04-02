@@ -161,11 +161,6 @@ export default {
       return this.$store.state.routes[this.tracerouteId]
     }
   },
-  watch: {
-    route: function (val) {
-      console.log('route changed', val)
-    },
-  },
   methods: {
     startRouting () {
       if(!this.destination)
@@ -179,7 +174,7 @@ export default {
       url += '/?target=' + this.destination
       this.ws = new WebSocket(url)
       var vm = this
-      this.ws.onopen = function(){console.log('opened')}
+      this.ws.onopen = function () {}
       this.ws.onmessage = function (evt) {
         var msg = evt.data
         var obj = JSON.parse(msg)
