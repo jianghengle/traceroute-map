@@ -11,6 +11,7 @@ class Agent(WebSocket):
     def handleConnected(self):
         print(self.address, 'connected')
         t = threading.Thread(target=self.start)
+        t.daemon = True
         t.start()
 
     def start(self):

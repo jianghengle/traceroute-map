@@ -75,7 +75,6 @@ export default {
             this.addToPath(path, route.hops[j])
           }
           if(route.routing){
-            this.addToPath(path, route.destination)
             polylines.push({
               path: path,
               options: {}
