@@ -25,7 +25,7 @@ export default {
   data () {
     return {
       mapCenter: {lat: 40.8186, lng: -96.7100},
-      traceroutes: [1]
+      traceroutes: [{id: 1}]
     }
   }
 }

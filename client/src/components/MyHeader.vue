@@ -7,7 +7,7 @@
         </a>
       </div>
 
-      <div class="navbar-menu is-active">
+      <div class="navbar-menu">
         <div class="navbar-start">
         </div>
 

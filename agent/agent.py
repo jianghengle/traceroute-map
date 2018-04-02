@@ -26,6 +26,7 @@ class Agent(WebSocket):
         query = urlparse(self.request.path).query
         query_components = dict(qc.split("=") for qc in query.split("&"))
         self.target = query_components["target"]
+        print(self.target)
 
     def dispatch(self):
         while len(Agent.traceroutes) > 0:
