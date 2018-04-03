@@ -13,8 +13,8 @@
                 <div class="field-body">
                   <div class="field is-narrow">
                     <div class="control">
-                      <div class="select is-fullwidth" v-model="sourceId">
-                        <select>
+                      <div class="select is-fullwidth">
+                        <select v-model="sourceId">
                           <option v-for="(opt, i) in sources" v-bind:value="i">{{opt.name}}</option>
                         </select>
                       </div>
