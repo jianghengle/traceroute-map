@@ -43,10 +43,14 @@ export default new Vuex.Store({
     startRouting (state, obj) {
       var source = makePoint()
       source.hop = 'S'
+      source.id = obj.id * 100
+      source.zIndex = source.id
       source.host = obj.source.host
       getGeoInfo(source)
       var destination = makePoint()
       destination.hop = 'D'
+      destination.id = (obj.id + 1) * 100 - 1
+      destination.zIndex = destination.id
       var hops = []
       var route = {id: obj.id, routing: true, source: source, hops: hops, destination: destination}
       if(state.routes[obj.id]){
@@ -74,6 +78,8 @@ export default new Vuex.Store({
         point.ip = obj.ip
         point.host = obj.host
         point.ttl = obj.ttl
+        point.id = route.source.id + point.hop
+        point.zIndex = point.id
         route.hops.push(point)
         if(point.ip){
           getGeoInfo (point)
@@ -83,9 +89,74 @@ export default new Vuex.Store({
 
     clearRoute (state, id) {
       state.routes[id] = null
-    }
+    },
+
+    putFront (state, obj) {
+      var id = obj.tracerouteId
+      var route = state.routes[id]
+      var zIndex = obj.point.zIndex
+      var p, f
+      var max = 0
+      if(route.source.zIndex === zIndex)
+        p = route.source
+      if(route.source.zIndex > max){
+        f = route.source
+        max = route.source.zIndex
+      }
+      for(var i=0;i<route.hops.length;i++){
+        var h = route.hops[i]
+        if(h.zIndex === zIndex)
+          p = h
+        if(h.zIndex > max){
+          f = h
+          max = h.zIndex
+        }
+      }
+      if(route.destination.zIndex === zIndex)
+        p = route.destination
+      if(route.destination.zIndex > max){
+        f = route.destination
+        max = route.destination.zIndex
+      }
+      var temp = p.zIndex
+      p.zIndex = f.zIndex
+      f.zIndex = temp
+    },
+
+    openInfo (state, id) {
+      var p = findPointById (state.routes, id)
+      if(p)
+        p.infoOpened = true
+    },
+
+    closeInfo (state, id) {
+      var p = findPointById (state.routes, id)
+      if(p)
+        p.infoOpened = false
+    },
   }
 })
+
+
+function findPointById (routes, id) {
+  var keys = Object.keys(routes)
+  for(var i=0;i<keys.length;i++){
+    var route = routes[keys[i]]
+    if(route.source.id === id){
+      return route.source
+    }
+    for(var j=0;j<route.hops.length;j++){
+      var h = route.hops[j]
+      if(h.id === id){
+        return h
+      }
+    }
+    if(route.destination.id === id){
+      return route.destination
+    }
+  }
+  return null
+}
 
 function makePoint () {
   return {
@@ -97,7 +168,10 @@ function makePoint () {
     lng: null,
     country: '',
     region: '',
-    city: ''
+    city: '',
+    zIndex: 0,
+    id: null,
+    infoOpened: false
   }
 }
 

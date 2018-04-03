@@ -65,7 +65,7 @@
                   <th>Hop</th>
                   <th>IP</th>
                   <th>Host</th>
-                  <th>TTL</th>
+                  <th>TTL (ms)</th>
                   <th>Latitude</th>
                   <th>Longitude</th>
                   <th>City</th>
@@ -74,7 +74,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="route.source">
+                <tr v-if="route.source" @click="centerTo(route.source)" class="clickable">
                   <th>Source</th>
                   <td>{{route.source.ip}}</td>
                   <td>{{route.source.host}}</td>
@@ -85,7 +85,7 @@
                   <td>{{route.source.region}}</td>
                   <td>{{route.source.country}}</td>
                 </tr>
-                <tr v-for="h in route.hops">
+                <tr v-for="h in route.hops" @click="centerTo(h)" class="clickable">
                   <th>{{h.hop}}</th>
                   <td>{{h.ip ? h.ip : '*' }}</td>
                   <td>{{h.host}}</td>
@@ -107,7 +107,7 @@
                   <td></td>
                   <td></td>
                 </tr>
-                <tr v-if="route.destination">
+                <tr v-if="route.destination" @click="centerTo(route.destination)" class="clickable">
                   <th>Desitination</th>
                   <td>{{route.destination.ip}}</td>
                   <td>{{route.destination.host}}</td>
@@ -159,7 +159,37 @@ export default {
     },
     route () {
       return this.$store.state.routes[this.tracerouteId]
+    },
+    latestPoint () {
+      if(!this.route)
+        return null
+      if(!this.route.routing){
+        var dest = this.route.destination
+        if(dest.lat && dest.lng){
+          return {lat: dest.lat, lng: dest.lng}
+        }
+        return null
+      }
+      if(this.route.hops.length){
+        var hop = this.route.hops[this.route.hops.length - 1]
+        if(hop.lat && hop.lng){
+          return {lat: hop.lat, lng: hop.lng}
+        }
+        return null
+      }
+      var source = this.route.source
+      if(source.lat && source.lng){
+        return {lat: source.lat, lng: source.lng}
+      }
+      return null
     }
+  },
+  watch: {
+    latestPoint: function (val) {
+      if(val){
+        this.$emit('center-to-point', val)
+      }
+    },
   },
   methods: {
     startRouting () {
@@ -191,6 +221,16 @@ export default {
     },
     clearRoute () {
       this.$store.commit('clearRoute', this.tracerouteId)
+    },
+    centerTo (point) {
+      if(this.route.routing)
+        return
+      if(point && point.lat && point.lng){
+        var obj = {tracerouteId: this.tracerouteId, point: point}
+        this.$store.commit('putFront', obj)
+        console.log(this.route)
+        this.$emit('center-to-point', point)
+      }
     }
   }
 }
@@ -200,5 +240,9 @@ export default {
 <style lang="scss" scoped>
 .traceroute-block {
   margin: 15px;
+}
+
+.clickable {
+  cursor: pointer;
 }
 </style>

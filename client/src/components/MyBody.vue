@@ -2,26 +2,44 @@
   <div class="main-body">
     <div>
       <gmap-map
+        ref="myMap"
         :center="mapCenter"
         :zoom="5"
         :options="{scrollwheel: false}"
         style="width: 100%; height: 600px">
         <gmap-marker
-          :key="index"
           v-for="(m, index) in markers"
+          :key="'m-' + m.id"
           :label=m.label
           :position="m.position"
-          :z-index="index">
+          :z-index="m.zIndex"
+          :clickable="true"
+          @click="openInfo(m.id)">
         </gmap-marker>
+        <gmap-info-window
+          v-for="(m, index) in markers"
+          :key="'i-' + m.id"
+          :opened="m.infoOpened"
+          :position="m.position"
+          :z-index="m.zIndex"
+          :options="infoOptions"
+          :content="m.info"
+          @closeclick="closeInfo(m.id)">
+          <span v-html="m.info"></span>
+        </gmap-info-window>
         <gmap-polyline
           v-for="(p, index) in polylines"
+          :key="'p-' + p.id"
           :path="p.path"
           :options="p.options">
         </gmap-polyline>
       </gmap-map>
     </div>
     <div v-for="t in traceroutes">
-      <traceroute></traceroute>
+      <traceroute
+        :traceroute-id="t.id"
+        @center-to-point="centerToPoint">
+      </traceroute>
     </div>
   </div>
 </template>
@@ -37,7 +55,14 @@ export default {
   data () {
     return {
       mapCenter: {lat: 40.8186, lng: -96.7100},
-      traceroutes: [{id: 1}]
+      traceroutes: [{id: 1}],
+      infoOptions: {
+        pixelOffset: {
+          width: 0,
+          height: -35
+        }
+      },
+      infos: []
     }
   },
   computed: {
@@ -76,17 +101,21 @@ export default {
           }
           if(route.routing){
             polylines.push({
+              id: route.id,
               path: path,
-              options: {}
+              options: {zIndex: route.id}
             })
             var lastPath = []
             if(path.length){
               lastPath.push(path[path.length-1])
             }
             this.addToPath(lastPath, route.destination)
+            var len = polylines.length
             polylines.push({
+              id: 'last-' + len,
               path: lastPath,
               options: {
+                zIndex: route.id,
                 strokeOpacity: 0,
                 icons: [{
                   icon: lineSymbol,
@@ -98,8 +127,9 @@ export default {
           }else{
             this.addToPath(path, route.destination)
             polylines.push({
+              id: route.id,
               path: path,
-              options: {}
+              options: {zIndex: route.id}
             })
           }
         }
@@ -112,8 +142,25 @@ export default {
       if(point.lat && point.lng){
         var marker = {
           label: point.hop.toString(),
-          position: {lat: point.lat, lng: point.lng}
+          position: {lat: point.lat, lng: point.lng},
+          id: point.id,
+          zIndex: point.zIndex,
+          infoOpened: point.infoOpened
         }
+        var info = '<table><tr><td>Hop:</td>'
+        if(marker.label == 'S'){
+          info += '<td>Source</td>'
+        }else if(marker.label == 'D'){
+          info += '<td>Destination</td>'
+        }else {
+          info += '<td>' + marker.label + '</td></tr>'
+        }
+        info += '<tr><td>IP:</td><td>' + point.ip + '</td></tr>'
+        info += '<tr><td>Host:</td><td>' + point.host + '</td></tr>'
+        if(point.ttl)
+          info += '<tr><td>TTL:</td><td>' + point.ttl + ' ms</td></tr>'
+        info += '<tr><td>City:</td><td>' + point.city + '</td></tr></table>'
+        marker.info = info
         markers.push(marker)
       }
     },
@@ -121,6 +168,15 @@ export default {
       if(point.lat && point.lng){
         path.push({lat: point.lat, lng: point.lng})
       }
+    },
+    centerToPoint (point) {
+      this.$refs.myMap.panTo(point)
+    },
+    openInfo (id) {
+      this.$store.commit('openInfo', id)
+    },
+    closeInfo (id) {
+      this.$store.commit('closeInfo', id)
     }
   }
 }
