@@ -228,7 +228,6 @@ export default {
       if(point && point.lat && point.lng){
         var obj = {tracerouteId: this.tracerouteId, point: point}
         this.$store.commit('putFront', obj)
-        console.log(this.route)
         this.$emit('center-to-point', point)
       }
     }

@@ -147,7 +147,7 @@ export default {
           zIndex: point.zIndex,
           infoOpened: point.infoOpened
         }
-        var info = '<table><tr><td>Hop:</td>'
+        var info = '<table><tr><td><strong>Hop:</strong></td>'
         if(marker.label == 'S'){
           info += '<td>Source</td>'
         }else if(marker.label == 'D'){
@@ -155,11 +155,14 @@ export default {
         }else {
           info += '<td>' + marker.label + '</td></tr>'
         }
-        info += '<tr><td>IP:</td><td>' + point.ip + '</td></tr>'
-        info += '<tr><td>Host:</td><td>' + point.host + '</td></tr>'
+        info += '<tr><td><strong>IP:</strong></td><td>' + point.ip + '</td></tr>'
+        info += '<tr><td><strong>Host:</strong></td><td>' + point.host + '</td></tr>'
         if(point.ttl)
-          info += '<tr><td>TTL:</td><td>' + point.ttl + ' ms</td></tr>'
-        info += '<tr><td>City:</td><td>' + point.city + '</td></tr></table>'
+          info += '<tr><td><strong>TTL:</strong></td><td>' + point.ttl + ' ms</td></tr>'
+        var location = point.city
+        location = location ? location + ', ' + point.region : location + point.region
+        location = location ? location + ', ' + point.country : location + point.country
+        info += '<tr><td><strong>Location:</strong></td><td>' + location + '</td></tr></table>'
         marker.info = info
         markers.push(marker)
       }
