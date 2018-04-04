@@ -4,8 +4,8 @@
       <div class="card-content">
         <div class="content">
 
-          <div class="columns">
-            <div class="column">
+          <div :class="{'columns': !sidebar}">
+            <div :class="{'column': !sidebar, 'column-sidebar': sidebar}">
               <div class="field is-horizontal">
                 <div class="field-label is-normal">
                   <label class="label">Source</label>
@@ -13,8 +13,8 @@
                 <div class="field-body">
                   <div class="field is-narrow">
                     <div class="control">
-                      <div class="select is-fullwidth" v-model="sourceId">
-                        <select>
+                      <div class="select is-fullwidth">
+                        <select v-model="sourceId">
                           <option v-for="(opt, i) in sources" v-bind:value="i">{{opt.name}}</option>
                         </select>
                       </div>
@@ -23,7 +23,7 @@
                 </div>
               </div>
             </div>
-            <div class="column">
+            <div :class="{'column': !sidebar, 'column-sidebar': sidebar}">
               <div class="field is-horizontal">
                 <div class="field-label is-normal">
                   <label class="label">Destination</label>
@@ -37,7 +37,7 @@
                 </div>
               </div>
             </div>
-            <div class="column">
+            <div :class="{'column': !sidebar, 'column-sidebar': sidebar}">
               <div class="field is-grouped is-grouped-centered">
                 <p class="control">
                   <a class="button is-info" :disabled="!destination" v-show="!route || !route.routing" @click="startRouting">
@@ -54,11 +54,16 @@
                     Clear
                   </a>
                 </p>
+                <p class="control" >
+                  <a class="button is-light" @click="showDetail = !showDetail">
+                    {{showDetail ? 'Collapse' : 'Expand'}}
+                  </a>
+                </p>
               </div>
             </div>
           </div>
 
-          <div>
+          <div :class="{'table-container-sidebar': sidebar}" v-show="showDetail">
             <table class="table is-narrow" v-if="route">
               <thead>
                 <tr>
@@ -75,7 +80,7 @@
               </thead>
               <tbody>
                 <tr v-if="route.source" @click="centerTo(route.source)" class="clickable">
-                  <th>Source</th>
+                  <th>{{sidebar ? 'S' : 'Source'}}</th>
                   <td>{{route.source.ip}}</td>
                   <td>{{route.source.host}}</td>
                   <td></td>
@@ -108,7 +113,7 @@
                   <td></td>
                 </tr>
                 <tr v-if="route.destination" @click="centerTo(route.destination)" class="clickable">
-                  <th>Desitination</th>
+                  <th>{{sidebar ? 'D' : 'Destination'}}</th>
                   <td>{{route.destination.ip}}</td>
                   <td>{{route.destination.host}}</td>
                   <td></td>
@@ -137,7 +142,8 @@ export default {
     return {
       sourceId: 0,
       destination: '',
-      ws: null
+      ws: null,
+      showDetail: true
     }
   },
   computed: {
@@ -182,6 +188,9 @@ export default {
         return {lat: source.lat, lng: source.lng}
       }
       return null
+    },
+    sidebar () {
+      return this.$store.state.sidebar
     }
   },
   watch: {
@@ -228,7 +237,6 @@ export default {
       if(point && point.lat && point.lng){
         var obj = {tracerouteId: this.tracerouteId, point: point}
         this.$store.commit('putFront', obj)
-        console.log(this.route)
         this.$emit('center-to-point', point)
       }
     }
@@ -239,7 +247,15 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .traceroute-block {
-  margin: 15px;
+  margin: 10px;
+}
+
+.column-sidebar {
+  margin-bottom: 10px;
+}
+
+.table-container-sidebar {
+  overflow: auto;
 }
 
 .clickable {

@@ -5,9 +5,13 @@ Vue.use(Vuex)
 import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
-var sources = [
-  {host: '129.93.175.20', port: 8000, description: 'test'}
-]
+var sources = []
+var ss = localStorage.getItem('sources')
+if(ss){
+  sources = JSON.parse(ss)
+}else{
+  sources = [{host: '129.93.175.20', port: 8000, description: 'test'}]
+}
 
 var localhost = {ip: '', latitude: null, longitude: null, country_name: '', region_name: '', city: ''}
 Vue.http.get('https://api.ipify.org?format=json').then(resp => {
@@ -32,12 +36,14 @@ export default new Vuex.Store({
   state: {
     localhost: localhost,
     sources: sources,
-    routes: {}
+    routes: {},
+    sidebar: false
   },
   mutations: {
 
-    addSource (state, source) {
-      state.sources.push(source)
+    setSources (state, sources) {
+      state.sources = sources
+      localStorage.setItem('sources', JSON.stringify(sources))
     },
 
     startRouting (state, obj) {
@@ -121,6 +127,8 @@ export default new Vuex.Store({
       var temp = p.zIndex
       p.zIndex = f.zIndex
       f.zIndex = temp
+      f.infoOpened = false
+      p.infoOpened = true
     },
 
     openInfo (state, id) {
@@ -134,6 +142,10 @@ export default new Vuex.Store({
       if(p)
         p.infoOpened = false
     },
+
+    toggleSidebar (state) {
+      state.sidebar = !state.sidebar
+    }
   }
 })
 

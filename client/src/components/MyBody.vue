@@ -1,12 +1,12 @@
 <template>
-  <div class="main-body">
-    <div>
+  <div :class="{'main-body-sidebar': sidebar}">
+    <div :class="{'map-container': !sidebar, 'map-container-sidebar': sidebar}">
       <gmap-map
         ref="myMap"
         :center="mapCenter"
         :zoom="5"
         :options="{scrollwheel: false}"
-        style="width: 100%; height: 600px">
+        style="width: 100%; height: 100%">
         <gmap-marker
           v-for="(m, index) in markers"
           :key="'m-' + m.id"
@@ -35,11 +35,15 @@
         </gmap-polyline>
       </gmap-map>
     </div>
-    <div v-for="t in traceroutes">
-      <traceroute
-        :traceroute-id="t.id"
-        @center-to-point="centerToPoint">
-      </traceroute>
+    <div :class="{'routes-container-sidebar': sidebar}">
+      <div>
+        <div v-for="t in traceroutes">
+          <traceroute
+            :traceroute-id="t.id"
+            @center-to-point="centerToPoint">
+          </traceroute>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -135,9 +139,12 @@ export default {
         }
       }
       return polylines
+    },
+    sidebar () {
+      return this.$store.state.sidebar
     }
   },
-   methods: {
+  methods: {
     makeMarker (markers, point) {
       if(point.lat && point.lng){
         var marker = {
@@ -147,7 +154,7 @@ export default {
           zIndex: point.zIndex,
           infoOpened: point.infoOpened
         }
-        var info = '<table><tr><td>Hop:</td>'
+        var info = '<table><tr><td><strong>Hop:</strong></td>'
         if(marker.label == 'S'){
           info += '<td>Source</td>'
         }else if(marker.label == 'D'){
@@ -155,11 +162,14 @@ export default {
         }else {
           info += '<td>' + marker.label + '</td></tr>'
         }
-        info += '<tr><td>IP:</td><td>' + point.ip + '</td></tr>'
-        info += '<tr><td>Host:</td><td>' + point.host + '</td></tr>'
+        info += '<tr><td><strong>IP:</strong></td><td>' + point.ip + '</td></tr>'
+        info += '<tr><td><strong>Host:</strong></td><td>' + point.host + '</td></tr>'
         if(point.ttl)
-          info += '<tr><td>TTL:</td><td>' + point.ttl + ' ms</td></tr>'
-        info += '<tr><td>City:</td><td>' + point.city + '</td></tr></table>'
+          info += '<tr><td><strong>TTL:</strong></td><td>' + point.ttl + ' ms</td></tr>'
+        var location = point.city
+        location = location ? location + ', ' + point.region : location + point.region
+        location = location ? location + ', ' + point.country : location + point.country
+        info += '<tr><td><strong>Location:</strong></td><td>' + location + '</td></tr></table>'
         marker.info = info
         markers.push(marker)
       }
@@ -184,7 +194,30 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-.main-body {
-  min-height: 800px;
+
+.main-body-sidebar {
+  position: fixed;
+  top: 52px;
+  width: 100%;
+  height: calc(100% - 52px);
 }
+
+.map-container {
+  width: 100%;
+  height: 600px;
+}
+
+.map-container-sidebar {
+  height: 100%;
+  width: 65%;
+  float: left;
+}
+
+.routes-container-sidebar {
+  height: 100%;
+  width: 35%;
+  float: right;
+  overflow: auto;
+}
+
 </style>
