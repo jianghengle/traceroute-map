@@ -11,6 +11,7 @@ class Agent(WebSocket):
     def handleConnected(self):
         print(self.address, 'connected')
         t = threading.Thread(target=self.start)
+        t.daemon = True
         t.start()
 
     def start(self):
@@ -26,6 +27,7 @@ class Agent(WebSocket):
         query = urlparse(self.request.path).query
         query_components = dict(qc.split("=") for qc in query.split("&"))
         self.target = query_components["target"]
+        print(self.target)
 
     def dispatch(self):
         while len(Agent.traceroutes) > 0:

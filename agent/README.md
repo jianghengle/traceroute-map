@@ -13,6 +13,10 @@ Traceroute is based on a [git gist](https://gist.github.com/jcjones/0f3f11a785a8
 * Do not run it in `sudo`
 * Adapt to websocket server
 
-Websocket server uses [this package](https://github.com/dpallot/simple-websocket-server). Parse the url `ws://host:port/?target=host` to get the traceroute target, and send back each hop in JSON: `{"hop": 1, "name": "router", "ip": "1.1.1.1", "rtt": 20.1}` 
+Websocket server uses [this package](https://github.com/dpallot/simple-websocket-server). Parse the url `ws://host:port/?target=host` to get the traceroute target, and send back each hop in JSON: `{"hop": 1, "host": "router", "ip": "1.1.1.1", "rtt": 20.1}` 
 
 You could test the agent by [this app](https://chrome.google.com/webstore/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo?hl=en). Input the url as `ws://host:port/?target=host`, and then connect, and then you should see the traceroute result in the log.
+
+Test agent at: 129.93.175.20, `ssh -i key centos@129.93.175.20`
+
+Use [screen](http://aperiodic.net/screen/quick_reference) to run the agent
