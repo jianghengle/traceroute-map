@@ -1,16 +1,19 @@
 <template>
   <div id="app">
-    <HelloWorld/>
+    <my-header/>
+    <my-body/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import MyHeader from './components/MyHeader'
+import MyBody from './components/MyBody'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    MyHeader,
+    MyBody
   }
 }
 </script>
@@ -23,4 +26,5 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 </style>
