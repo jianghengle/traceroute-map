@@ -1,23 +1,22 @@
 <template>
   <div>
-    <nav class="navbar is-transparent header">
-      <div class="navbar-brand">
-        <a class="navbar-item is-primary app-name">
-          Traceroute Map
+    <div class="header">
+      <div class="app-name">
+        Traceroute Map
+      </div>
+
+      <div class="menu">
+        <a class="item-link" href="https://github.com/jianghengle/traceroute-map">
+          <icon name="github" scale="1.3" class="item-icon"></icon>
+        </a>
+        <a class="item-link" @click="toggleSidebar">
+          <icon name="columns" scale="1.3" class="item-icon"></icon>
+        </a>
+        <a class="item-link" @click="sourcesModal.opened = true">
+          <icon name="cog" scale="1.3" class="item-icon"></icon>
         </a>
       </div>
-
-      <div class="navbar-menu">
-        <div class="navbar-start">
-        </div>
-
-        <div class="navbar-end">
-          <a class="navbar-item menu" @click="sourcesModal.opened = true">
-            <span class="nav-icon"><icon name="cog"></icon></span>Sources
-          </a>
-        </div>
-      </div>
-    </nav>
+    </div>
 
     <sources-modal
       :opened="sourcesModal.opened"
@@ -40,6 +39,11 @@ export default {
         opened: false
       }
     }
+  },
+  methods: {
+    toggleSidebar () {
+      this.$store.commit('toggleSidebar')
+    }
   }
 }
 </script>
@@ -47,27 +51,41 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .header {
+  height: 52px;
+  width: 100%;
   background-color: black;
+  padding-left: 16px;
+  padding-right: 16px;
 
   .app-name {
     color: white;
     font-weight: bold;
     font-size: 20px;
-    margin: auto;
+    line-height: 52px;
+    float:left;
   }
 
   .menu {
-    color: white;
+    float: right;
+    height: 100%;
 
-    .nav-icon {
-      position: relative;
-      top: 4px;
-      right: 5px;
+    .item-link {
+      display: inline-block;
+      color: white;
+      min-width: 30px;
+      text-align: center;
+      line-height: 52px;
+      margin-left: 10px;
+
+      .item-icon {
+        position: relative;
+        top: 6px;
+      }
     }
-  }
 
-  a:hover {
-    color: #eeeeee;
+    .item-link:hover {
+      color: #eeeeee;
+    }
   }
 }
 </style>

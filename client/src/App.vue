@@ -2,21 +2,18 @@
   <div id="app">
     <my-header/>
     <my-body/>
-    <my-footer/>
   </div>
 </template>
 
 <script>
 import MyHeader from './components/MyHeader'
 import MyBody from './components/MyBody'
-import MyFooter from './components/MyFooter'
 
 export default {
   name: 'App',
   components: {
     MyHeader,
-    MyBody,
-    MyFooter
+    MyBody
   }
 }
 </script>
@@ -29,4 +26,5 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 </style>
