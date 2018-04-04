@@ -36,7 +36,8 @@ export default new Vuex.Store({
   state: {
     localhost: localhost,
     sources: sources,
-    routes: {}
+    routes: {},
+    sidebar: false
   },
   mutations: {
 
@@ -126,6 +127,8 @@ export default new Vuex.Store({
       var temp = p.zIndex
       p.zIndex = f.zIndex
       f.zIndex = temp
+      f.infoOpened = false
+      p.infoOpened = true
     },
 
     openInfo (state, id) {
@@ -139,6 +142,10 @@ export default new Vuex.Store({
       if(p)
         p.infoOpened = false
     },
+
+    toggleSidebar (state) {
+      state.sidebar = !state.sidebar
+    }
   }
 })
 
