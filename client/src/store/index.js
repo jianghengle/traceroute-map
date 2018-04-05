@@ -31,6 +31,7 @@ Vue.http.get('https://api.ipify.org?format=json').then(resp => {
 })
 
 var cachedGeo = {}
+var colors = ['#001f3f', '#ea4335', '#0074D9', '#FF851B', '#39CCCC', '#85144b', '#3D9970', '#642cb1']
 
 export default new Vuex.Store({
   state: {
@@ -58,7 +59,8 @@ export default new Vuex.Store({
       destination.id = (obj.id + 1) * 100 - 1
       destination.zIndex = destination.id
       var hops = []
-      var route = {id: obj.id, routing: true, source: source, hops: hops, destination: destination}
+      var route = {id: obj.id, zIndex: obj.id, routing: true, source: source, hops: hops, destination: destination}
+      route.color = getRouteColor(route.id)
       if(state.routes[obj.id]){
         state.routes[obj.id] = route
       }else{
@@ -77,7 +79,7 @@ export default new Vuex.Store({
         var dest = route.destination
         dest.ip = obj.ip
         dest.host = obj.host
-        getGeoInfo (dest)
+        getGeoInfo (dest, route.source)
       }else{
         var point = makePoint()
         point.hop = obj.hop
@@ -88,7 +90,7 @@ export default new Vuex.Store({
         point.zIndex = point.id
         route.hops.push(point)
         if(point.ip){
-          getGeoInfo (point)
+          getGeoInfo (point, route.source)
         }
       }
     },
@@ -98,37 +100,12 @@ export default new Vuex.Store({
     },
 
     putFront (state, obj) {
-      var id = obj.tracerouteId
-      var route = state.routes[id]
-      var zIndex = obj.point.zIndex
-      var p, f
-      var max = 0
-      if(route.source.zIndex === zIndex)
-        p = route.source
-      if(route.source.zIndex > max){
-        f = route.source
-        max = route.source.zIndex
-      }
-      for(var i=0;i<route.hops.length;i++){
-        var h = route.hops[i]
-        if(h.zIndex === zIndex)
-          p = h
-        if(h.zIndex > max){
-          f = h
-          max = h.zIndex
-        }
-      }
-      if(route.destination.zIndex === zIndex)
-        p = route.destination
-      if(route.destination.zIndex > max){
-        f = route.destination
-        max = route.destination.zIndex
-      }
-      var temp = p.zIndex
-      p.zIndex = f.zIndex
-      f.zIndex = temp
-      f.infoOpened = false
-      p.infoOpened = true
+      var routeId = obj.routeId
+      putRouteFront(state.routes, routeId)
+      var route = state.routes[routeId]
+
+      var pointId = obj.pointId
+      putPointFront(route, pointId)
     },
 
     openInfo (state, id) {
@@ -149,6 +126,74 @@ export default new Vuex.Store({
   }
 })
 
+
+function putRouteFront (routes, routeId) {
+  var route, maxRoute
+  var keys = Object.keys(routes)
+  for(var i=0;i<keys.length;i++){
+    var r = routes[keys[i]]
+    if(!r)
+      continue
+    if(r.id == routeId)
+      route = r
+    if(!maxRoute || r.zIndex > maxRoute.zIndex)
+      maxRoute = r
+  }
+
+  if(route == maxRoute)
+    return
+
+  var temp = route.zIndex
+  changeRouteZIndex(route, maxRoute.zIndex)
+  changeRouteZIndex(maxRoute, temp)
+}
+
+function changeRouteZIndex (route, zIndex) {
+  if(route.zIndex == zIndex)
+    return
+  route.zIndex = zIndex
+  route.source.zIndex = (route.source.zIndex % 100) + (zIndex * 100)
+  for(var i=0;i<route.hops.length;i++){
+    var hop = route.hops[i]
+    hop.zIndex = (hop.zIndex % 100) + (zIndex * 100)
+  }
+  route.destination.zIndex = (route.destination.zIndex % 100) + (zIndex * 100)
+}
+
+function putPointFront (route, pointId) {
+  var point, maxPoint
+
+  if(route.source.id === pointId)
+    point = route.source
+  if(!maxPoint || route.source.zIndex > maxPoint.zIndex)
+    maxPoint = route.source
+
+  for(var i=0;i<route.hops.length;i++){
+    var hop = route.hops[i]
+    if(hop.id === pointId)
+      point = hop
+    if(!maxPoint || hop.zIndex > maxPoint.zIndex)
+      maxPoint = hop
+  }
+
+  if(route.destination.id === pointId)
+    point = route.destination
+  if(!maxPoint || route.destination.zIndex > maxPoint.zIndex)
+    maxPoint = route.destination
+
+  if(point == maxPoint)
+    return
+
+  var temp = point.zIndex
+  point.zIndex = maxPoint.zIndex
+  maxPoint.zIndex = temp
+  maxPoint.infoOpened = false
+  point.infoOpened = true
+}
+
+function getRouteColor (id) {
+  return colors[(id - 1) % colors.length]
+}
 
 function findPointById (routes, id) {
   var keys = Object.keys(routes)
@@ -187,7 +232,7 @@ function makePoint () {
   }
 }
 
-function getGeoInfo (point) {
+function getGeoInfo (point, source) {
   var key = point.ip
   if(!key){
     key = point.host
@@ -200,17 +245,17 @@ function getGeoInfo (point) {
     Vue.http.get('http://freegeoip.net/json/' + key).then(resp => {
       var geo = resp.body
       point.ip = geo.ip
-      if(geo.latitude && geo.longitude){
+      var lat = geo.latitude
+      var lng = geo.longitude
+      if(isNaN(lat) || isNaN(lng) || (lat===0 && lng===0)){
+        copyFromSource(point, source)
+      }else{
         copyGeoInfo(point, geo)
         cachedGeo[key] = geo
-      }else{
-        copyGeoInfo(point, localhost)
-        cachedGeo[key] = localhost
       }
     }, error => {
       console.log('error in get ip and geo')
-      copyGeoInfo(point, localhost)
-      cachedGeo[key] = localhost
+      copyFromSource(point, source)
     })
   }
   
@@ -222,4 +267,13 @@ function getGeoInfo (point) {
     point.city = geo.city
   }
 
+  function copyFromSource (point, source) {
+    if(source){
+      point.lat = source.lat
+      point.lng = source.lng
+      point.country = source.country
+      point.region = source.region
+      point.city = source.city
+    }
+  }
 }

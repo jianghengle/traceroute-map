@@ -53,7 +53,7 @@ export default {
 .header {
   height: 52px;
   width: 100%;
-  background-color: black;
+  background-color: #001f3f;
   padding-left: 16px;
   padding-right: 16px;
 

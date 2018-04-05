@@ -10,6 +10,9 @@ import 'vue-awesome/icons/cog'
 import 'vue-awesome/icons/github'
 import 'vue-awesome/icons/columns'
 import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/close'
+import 'vue-awesome/icons/chevron-circle-up'
+import 'vue-awesome/icons/chevron-circle-down'
 import Icon from 'vue-awesome/components/Icon'
 Vue.component('icon', Icon)
 
