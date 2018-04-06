@@ -5,7 +5,6 @@
         ref="myMap"
         :center="mapCenter"
         :zoom="5"
-        :options="{scrollwheel: false}"
         style="width: 100%; height: 100%">
         <gmap-marker
           v-for="(m, index) in markers"

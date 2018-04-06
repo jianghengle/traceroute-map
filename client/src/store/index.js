@@ -6,11 +6,25 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
 var sources = []
+var localSource = {host: 'localhost', port: '', description: 'this computer'}
 var ss = localStorage.getItem('sources')
 if(ss){
-  sources = JSON.parse(ss)
-}else{
+  try {
+    sources = JSON.parse(ss)
+  }
+  catch(error) {
+    sources = []
+  }
+}
+
+if(!sources || !Array.isArray(sources) || !sources.length) {
   sources = [{host: '129.93.175.20', port: 8000, description: 'test'}]
+}
+
+if(xTARGETx == 'electron'){
+  if(sources[0].host != localSource.host || sources[0].port != localSource.port){
+    sources.unshift(localSource)
+  }
 }
 
 var localhost = {ip: '', latitude: null, longitude: null, country_name: '', region_name: '', city: ''}
@@ -43,6 +57,9 @@ export default new Vuex.Store({
   mutations: {
 
     setSources (state, sources) {
+      if(xTARGETx == 'electron'){
+        sources.unshift(localSource)
+      }
       state.sources = sources
       localStorage.setItem('sources', JSON.stringify(sources))
     },
