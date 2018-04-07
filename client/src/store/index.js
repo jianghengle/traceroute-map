@@ -106,6 +106,9 @@ export default new Vuex.Store({
         point.id = route.source.id + point.hop
         point.zIndex = point.id
         route.hops.push(point)
+        route.hops.sort(function(a, b) {
+          return a.hop - b.hop
+        })
         if(point.ip){
           getGeoInfo (point, route.source)
         }

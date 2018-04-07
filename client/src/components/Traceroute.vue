@@ -74,7 +74,7 @@
                   <th>Hop</th>
                   <th>IP</th>
                   <th>Host</th>
-                  <th>TTL (ms)</th>
+                  <th>RTT (ms)</th>
                   <th>Latitude</th>
                   <th>Longitude</th>
                   <th>City</th>
@@ -147,6 +147,7 @@ export default {
       sourceId: 0,
       destination: '',
       ws: null,
+      tr: null,
       showDetail: true
     }
   },
@@ -237,26 +238,44 @@ export default {
         return
       var obj = {id: this.tracerouteId, source: this.source, destination: this.destination}
       this.$store.commit('startRouting', obj)
-      var url = 'ws://' + this.source.host
-      if(this.source.port){
-        url += ':' + this.source.port
-      }
-      url += '/?target=' + this.destination
-      this.ws = new WebSocket(url)
+
       var vm = this
-      this.ws.onopen = function () {}
-      this.ws.onmessage = function (evt) {
-        var msg = evt.data
-        var obj = JSON.parse(msg)
-        obj.tracerouteId = vm.tracerouteId
-        vm.$store.commit('addHop', obj)
-      }
-      this.ws.onclose = function () {
-        vm.$store.commit('stopRouting', vm.tracerouteId)
+      if(xTARGETx == 'electron' && this.source.host == 'localhost' && this.source.port == ''){
+        var trs = window.require('electron').remote.require('./services/traceroute.service.js')
+        this.tr = trs.makeTraceroute(this.destination, function(hop){
+          hop.tracerouteId = vm.tracerouteId
+          vm.$store.commit('addHop', hop)
+        },function(){
+          vm.$store.commit('stopRouting', vm.tracerouteId)
+        })
+        this.tr.start()
+      }else{
+        var url = 'ws://' + this.source.host
+        if(this.source.port){
+          url += ':' + this.source.port
+        }
+        url += '/?target=' + this.destination
+        this.ws = new WebSocket(url)
+        this.ws.onopen = function () {}
+        this.ws.onmessage = function (evt) {
+          var msg = evt.data
+          var obj = JSON.parse(msg)
+          obj.tracerouteId = vm.tracerouteId
+          vm.$store.commit('addHop', obj)
+        }
+        this.ws.onclose = function () {
+          vm.$store.commit('stopRouting', vm.tracerouteId)
+        }
       }
     },
     stopRouting () {
-      this.ws.close()
+      if(this.ws){
+        this.ws.close()
+      }
+      if(this.tr){
+        this.tr.stop()
+        this.tr = null
+      }
       this.$store.commit('stopRouting', this.tracerouteId)
     },
     clearRoute () {
@@ -272,6 +291,10 @@ export default {
     deleteTraceroute () {
       if(this.ws){
         this.ws.close()
+      }
+      if(this.tr){
+        this.tr.stop()
+        this.tr = null
       }
       this.$store.commit('clearRoute', this.tracerouteId)
       this.$emit('delete-traceroute', this.tracerouteId)

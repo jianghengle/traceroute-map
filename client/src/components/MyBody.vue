@@ -177,7 +177,7 @@ export default {
         info += '<tr><td><strong>IP:</strong></td><td>' + point.ip + '</td></tr>'
         info += '<tr><td><strong>Host:</strong></td><td>' + point.host + '</td></tr>'
         if(point.ttl)
-          info += '<tr><td><strong>TTL:</strong></td><td>' + point.ttl + ' ms</td></tr>'
+          info += '<tr><td><strong>RTT:</strong></td><td>' + point.ttl + ' ms</td></tr>'
         var location = point.city
         location = location ? location + ', ' + point.region : location + point.region
         location = location ? location + ', ' + point.country : location + point.country
