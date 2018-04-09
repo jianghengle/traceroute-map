@@ -32,10 +32,10 @@ Vue.http.get('https://api.ipify.org?format=json').then(resp => {
   localhost.ip = resp.body.ip
   Vue.http.get('http://freegeoip.net/json/' + localhost.ip).then(resp => {
     var geo = resp.body
-    localhost.latitude = geo.latitude
-    localhost.longitude = geo.longitude
-    localhost.country_name = geo.country_name
-    localhost.region_name = geo.region_name
+    localhost.lat = geo.latitude
+    localhost.lng = geo.longitude
+    localhost.country = geo.country_name
+    localhost.region = geo.region_name
     localhost.city = geo.city
   }, error => {
     console.log('error in get client ip')
@@ -49,7 +49,6 @@ var colors = ['#001f3f', '#ea4335', '#0074D9', '#FF851B', '#39CCCC', '#85144b', 
 
 export default new Vuex.Store({
   state: {
-    localhost: localhost,
     sources: sources,
     routes: {},
     sidebar: false
@@ -70,7 +69,7 @@ export default new Vuex.Store({
       source.id = obj.id * 100
       source.zIndex = source.id
       source.host = obj.source.host
-      getGeoInfo(source)
+      getGeoInfo(source, localhost)
       var destination = makePoint()
       destination.hop = 'D'
       destination.id = (obj.id + 1) * 100 - 1
@@ -252,7 +251,7 @@ function makePoint () {
   }
 }
 
-function getGeoInfo (point, source) {
+function getGeoInfo (point, defaultInfo) {
   var key = point.ip
   if(!key){
     key = point.host
@@ -268,32 +267,26 @@ function getGeoInfo (point, source) {
       var lat = geo.latitude
       var lng = geo.longitude
       if(isNaN(lat) || isNaN(lng) || (lat===0 && lng===0)){
-        copyFromSource(point, source)
+        copyGeoInfo(point, defaultInfo)
       }else{
-        copyGeoInfo(point, geo)
-        cachedGeo[key] = geo
+        point.lat = lat
+        point.lng = lng
+        point.country = geo.country_name
+        point.region = geo.region_name
+        point.city = geo.city
+        cachedGeo[key] = point
       }
     }, error => {
       console.log('error in get ip and geo')
-      copyFromSource(point, source)
+      copyGeoInfo(point, defaultInfo)
     })
   }
   
   function copyGeoInfo (point, geo) {
-    point.lat = geo.latitude
-    point.lng = geo.longitude
-    point.country = geo.country_name
-    point.region = geo.region_name
+    point.lat = geo.lat
+    point.lng = geo.lng
+    point.country = geo.country
+    point.region = geo.region
     point.city = geo.city
-  }
-
-  function copyFromSource (point, source) {
-    if(source){
-      point.lat = source.lat
-      point.lng = source.lng
-      point.country = source.country
-      point.region = source.region
-      point.city = source.city
-    }
   }
 }
