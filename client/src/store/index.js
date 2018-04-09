@@ -101,7 +101,7 @@ export default new Vuex.Store({
         point.hop = obj.hop
         point.ip = obj.ip
         point.host = obj.host
-        point.ttl = obj.ttl
+        point.rtt = obj.rtt
         point.id = route.source.id + point.hop
         point.zIndex = point.id
         route.hops.push(point)
@@ -239,7 +239,7 @@ function makePoint () {
     hop: null,
     host: '',
     ip: '',
-    ttl: null,
+    rtt: null,
     lat: null,
     lng: null,
     country: '',

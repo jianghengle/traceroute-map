@@ -23,9 +23,9 @@ function makeTraceroute (destination, onhop, onclose) {
     })
     .on('hop', (hop) => {
       console.log(`hop: ${JSON.stringify(hop)}`);
-      var h = {hop: hop.hop, host: null, ip: null, ttl: null};
+      var h = {hop: hop.hop, host: null, ip: null, rtt: null};
       if(hop.rtt1 && hop.rtt1 != '*'){
-        h.ttl = parseFloat(hop.rtt1);
+        h.rtt = parseFloat(hop.rtt1);
       }
       if(hop.ip && hop.ip != '*'){
         h.ip = hop.ip;
@@ -50,7 +50,7 @@ function makeTraceroute (destination, onhop, onclose) {
   traceroute.start = function () {
     try {
       dns.lookup(traceroute.destination, (err, address, family) => {
-        var hop = {hop: 'dest', 'host': traceroute.destination, ip: address, ttl: null}
+        var hop = {hop: 'dest', 'host': traceroute.destination, ip: address, rtt: null}
         traceroute.onhop(hop);
       });
       traceroute.tracer.trace(traceroute.destination);

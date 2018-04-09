@@ -30,7 +30,7 @@ class Traceroute:
             timeout = struct.pack("ll", 5, 0)
             recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeout)
             send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, hop)
-            ttl = None
+            rtt = None
             curr_addr = None
             finished = False
             tries = 3
@@ -39,7 +39,7 @@ class Traceroute:
                     start = datetime.now()
                     send_socket.sendto("", (self.dest_addr, port))
                     _, curr_addr = recv_socket.recvfrom(512)
-                    ttl = (datetime.now() - start).microseconds / 1000.0
+                    rtt = (datetime.now() - start).microseconds / 1000.0
                     finished = True
                     curr_addr = curr_addr[0]
                 except:
@@ -49,12 +49,12 @@ class Traceroute:
             except:
                 curr_name = curr_addr
 
-            self.output_hop(hop, curr_name, curr_addr, ttl)
+            self.output_hop(hop, curr_name, curr_addr, rtt)
 
             hop = hop + 1
             if curr_addr == self.dest_addr or hop > max_hops:
                 break
-            ttl = 0
+            rtt = 0
             curr_addr = None
             finished = False
         send_socket.close()
@@ -63,8 +63,8 @@ class Traceroute:
         if self.agent != None:
             self.agent.dispatch()
 
-    def output_hop(self, hop, host, ip, ttl):
-        obj = {'hop': hop, 'host': host, 'ip': ip, 'ttl': ttl}
+    def output_hop(self, hop, host, ip, rtt):
+        obj = {'hop': hop, 'host': host, 'ip': ip, 'rtt': rtt}
         json_str = json.dumps(obj)
         print(json_str)
         if self.agent != None and self.status != 'done':

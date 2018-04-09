@@ -98,7 +98,7 @@
                   <th>{{h.hop}}</th>
                   <td>{{h.ip ? h.ip : '*' }}</td>
                   <td>{{h.host}}</td>
-                  <td>{{h.ttl}}</td>
+                  <td>{{h.rtt}}</td>
                   <td>{{h.lat}}</td>
                   <td>{{h.lng}}</td>
                   <td>{{h.city}}</td>
