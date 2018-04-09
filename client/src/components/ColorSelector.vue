@@ -82,12 +82,5 @@ export default {
     }
   }
 }
- 
-
-
-
-
-
-
 
 </style>

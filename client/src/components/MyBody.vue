@@ -220,19 +220,6 @@ export default {
     },
     addTraceoute () {
       this.$store.commit('addRoute')
-    },
-    deleteTraceroute (id) {
-      /*
-      var index = null
-      for(var i=0;i<this.traceroutes.length;i++){
-        if(this.traceroutes[i].id == id){
-          index = i
-          break
-        }
-      }
-      if(index !== null){
-        this.traceroutes.splice(index, 1)
-      }*/
     }
   }
 }
