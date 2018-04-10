@@ -17,11 +17,10 @@ console.log('websocket server is listening on port: %d', port);
 
 wss.on('connection', function connection(ws, req) {
   var pid = null;
-  console.log(req.url)
+  
   var queryData = url.parse(req.url, true).query;
-  console.log(queryData)
   var target = queryData.target;
-  if(!target){
+  if (!target) {
     ws.close();
     return;
   }
@@ -49,10 +48,10 @@ wss.on('connection', function connection(ws, req) {
           }else{
             h.host = hostnames[0];
           }
-          ws.send(JSON.stringify(h));
+          sendHop(ws, h);
         });
       }else{
-        ws.send(JSON.stringify(h));
+        sendHop(ws, h);
       }
     })
     .on('close', (code) => {
@@ -63,8 +62,11 @@ wss.on('connection', function connection(ws, req) {
 
   try{
     dns.lookup(target, (err, address, family) => {
-      var h = {hop: 'dest', 'host': target, ip: address, rtt: null}
-      ws.send(JSON.stringify(h));
+      if (err) {
+        throw 'failed to get destination address'
+      }
+      var h = {hop: 'dest', 'host': target, ip: address, rtt: null};
+      sendHop(ws, h);
       tracer.trace(target);
     });
   } catch (ex) {
@@ -82,3 +84,10 @@ wss.on('connection', function connection(ws, req) {
     }
   });
 });
+
+
+function sendHop (ws, hop) {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(hop));
+  }
+}
