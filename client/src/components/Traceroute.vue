@@ -2,6 +2,7 @@
   <div class="traceroute-block">
     <div class="card" :style="cardStyle">
       <div class="card-buttons">
+        <color-selector :traceroute-id="tracerouteId" :color="route.color"></color-selector>
         <a v-if="showDetail" @click="showDetail = !showDetail">
           <icon class="icon-button" name="chevron-circle-up" scale="1.3" :style="colorStyle"></icon>
         </a>
@@ -68,7 +69,7 @@
           </div>
 
           <div class="table-container" v-show="showDetail">
-            <table class="table is-narrow" v-if="route">
+            <table class="table is-narrow" v-if="route && route.source">
               <thead>
                 <tr>
                   <th>Hop</th>
@@ -139,8 +140,13 @@
 </template>
 
 <script>
+import ColorSelector from './ColorSelector'
+
 export default {
   name: 'traceroute',
+  components: {
+    ColorSelector
+  },
   props: ['tracerouteId', 'traceroutes'],
   data () {
     return {
@@ -172,7 +178,7 @@ export default {
       return this.$store.state.routes[this.tracerouteId]
     },
     latestPoint () {
-      if(!this.route)
+      if(!this.route || !this.route.source)
         return null
       if(!this.route.routing){
         var dest = this.route.destination
@@ -296,8 +302,7 @@ export default {
         this.tr.stop()
         this.tr = null
       }
-      this.$store.commit('clearRoute', this.tracerouteId)
-      this.$emit('delete-traceroute', this.tracerouteId)
+      this.$store.commit('deleteRoute', this.tracerouteId)
     }
   }
 }
@@ -313,14 +318,6 @@ export default {
   float: right;
   margin-top: 10px;
   margin-right: 10px;
-
-  .icon-button {
-    color: #cecece;
-  }
-
-  .icon-button:hover {
-    color: #9e9e9e;
-  }
 }
 
 .padding-bottom-less {

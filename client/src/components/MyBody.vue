@@ -41,8 +41,7 @@
           <traceroute
             :traceroute-id="t.id"
             :traceroutes="traceroutes"
-            @center-to-point="centerToPoint"
-            @delete-traceroute="deleteTraceroute">
+            @center-to-point="centerToPoint">
           </traceroute>
         </div>
         <div class="button-line">
@@ -64,7 +63,6 @@ export default {
   data () {
     return {
       mapCenter: {lat: 40.8186, lng: -96.7100},
-      traceroutes: [{id: 1}],
       infoOptions: {
         pixelOffset: {
           width: 0,
@@ -75,13 +73,23 @@ export default {
     }
   },
   computed: {
+    traceroutes () {
+      var routes = this.$store.state.routes
+      var traceroutes = Object.values(routes).filter(function(r){
+        return r
+      })
+      traceroutes.sort(function(a, b){
+        return a.id - b.id
+      })
+      return traceroutes
+    },
     markers () {
       var routes = this.$store.state.routes
       var keys = Object.keys(routes)
       var markers = []
       for(var i=0;i<keys.length;i++){
         var route = routes[keys[i]]
-        if(route){
+        if(route && route.source){
           this.makeMarker(markers, route.source, route)
           for(var j=0;j<route.hops.length;j++){
             this.makeMarker(markers, route.hops[j], route)
@@ -102,7 +110,7 @@ export default {
       }
       for(var i=0;i<keys.length;i++){
         var route = routes[keys[i]]
-        if(route){
+        if(route && route.source){
           var path = []
           this.addToPath(path, route.source)
           for(var j=0;j<route.hops.length;j++){
@@ -211,25 +219,7 @@ export default {
       this.$store.commit('closeInfo', id)
     },
     addTraceoute () {
-      var maxId = 0
-      this.traceroutes.forEach(function (t) {
-        if(t.id > maxId) {
-          maxId = t.id
-        }
-      })
-      this.traceroutes.push({id: maxId + 1})
-    },
-    deleteTraceroute (id) {
-      var index = null
-      for(var i=0;i<this.traceroutes.length;i++){
-        if(this.traceroutes[i].id == id){
-          index = i
-          break
-        }
-      }
-      if(index !== null){
-        this.traceroutes.splice(index, 1)
-      }
+      this.$store.commit('addRoute')
     }
   }
 }

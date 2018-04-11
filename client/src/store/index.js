@@ -45,13 +45,14 @@ Vue.http.get('https://api.ipify.org?format=json').then(resp => {
 })
 
 var cachedGeo = {}
-var colors = ['#001f3f', '#ea4335', '#0074D9', '#FF851B', '#39CCCC', '#85144b', '#3D9970', '#642cb1']
+var colors = ['#001f3f', '#85144b', '#0074D9', '#FF4136','#3D9970', '#642cb1', '#39CCCC', '#FF851B']
 
 export default new Vuex.Store({
   state: {
     sources: sources,
-    routes: {},
-    sidebar: false
+    routes: {1: {id: 1, color: colors[0]}},
+    sidebar: false,
+    colors: colors
   },
   mutations: {
 
@@ -61,6 +62,22 @@ export default new Vuex.Store({
       }
       state.sources = sources
       localStorage.setItem('sources', JSON.stringify(sources))
+    },
+
+    addRoute (state) {
+      var maxId = 0
+      Object.values(state.routes).forEach(function (r) {
+        if(r && r.id > maxId) {
+          maxId = r.id
+        }
+      })
+      var id = maxId + 1
+      var route = {id: id, color: getRouteColor(id)}
+      Vue.set(state.routes, id, route)
+    },
+
+    deleteRoute (state, id) {
+      state.routes[id] = null
     },
 
     startRouting (state, obj) {
@@ -78,6 +95,7 @@ export default new Vuex.Store({
       var route = {id: obj.id, zIndex: obj.id, routing: true, source: source, hops: hops, destination: destination}
       route.color = getRouteColor(route.id)
       if(state.routes[obj.id]){
+        route.color = state.routes[obj.id].color
         state.routes[obj.id] = route
       }else{
         Vue.set(state.routes, obj.id, route)
@@ -115,7 +133,8 @@ export default new Vuex.Store({
     },
 
     clearRoute (state, id) {
-      state.routes[id] = null
+      var route = state.routes[id]
+      state.routes[id] = {id: route.id, color: route.color}
     },
 
     putFront (state, obj) {
@@ -141,6 +160,10 @@ export default new Vuex.Store({
 
     toggleSidebar (state) {
       state.sidebar = !state.sidebar
+    },
+
+    setRouteColor (state, obj) {
+      state.routes[obj.id].color = obj.color
     }
   }
 })
@@ -218,6 +241,8 @@ function findPointById (routes, id) {
   var keys = Object.keys(routes)
   for(var i=0;i<keys.length;i++){
     var route = routes[keys[i]]
+    if(!route || !route.source)
+      continue
     if(route.source.id === id){
       return route.source
     }
