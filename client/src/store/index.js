@@ -6,11 +6,25 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
 var sources = []
+var localSource = {host: 'localhost', port: '', description: 'this computer'}
 var ss = localStorage.getItem('sources')
 if(ss){
-  sources = JSON.parse(ss)
-}else{
+  try {
+    sources = JSON.parse(ss)
+  }
+  catch(error) {
+    sources = []
+  }
+}
+
+if(!sources || !Array.isArray(sources) || !sources.length) {
   sources = [{host: '129.93.175.20', port: 8000, description: 'test'}]
+}
+
+if(xTARGETx == 'electron'){
+  if(sources[0].host != localSource.host || sources[0].port != localSource.port){
+    sources.unshift(localSource)
+  }
 }
 
 var localhost = {ip: '', latitude: null, longitude: null, country_name: '', region_name: '', city: ''}
@@ -18,10 +32,10 @@ Vue.http.get('https://api.ipify.org?format=json').then(resp => {
   localhost.ip = resp.body.ip
   Vue.http.get('http://freegeoip.net/json/' + localhost.ip).then(resp => {
     var geo = resp.body
-    localhost.latitude = geo.latitude
-    localhost.longitude = geo.longitude
-    localhost.country_name = geo.country_name
-    localhost.region_name = geo.region_name
+    localhost.lat = geo.latitude
+    localhost.lng = geo.longitude
+    localhost.country = geo.country_name
+    localhost.region = geo.region_name
     localhost.city = geo.city
   }, error => {
     console.log('error in get client ip')
@@ -31,20 +45,39 @@ Vue.http.get('https://api.ipify.org?format=json').then(resp => {
 })
 
 var cachedGeo = {}
-var colors = ['#001f3f', '#ea4335', '#0074D9', '#FF851B', '#39CCCC', '#85144b', '#3D9970', '#642cb1']
+var colors = ['#001f3f', '#85144b', '#0074D9', '#FF4136','#3D9970', '#642cb1', '#39CCCC', '#FF851B']
 
 export default new Vuex.Store({
   state: {
-    localhost: localhost,
     sources: sources,
-    routes: {},
-    sidebar: false
+    routes: {1: {id: 1, color: colors[0]}},
+    sidebar: false,
+    colors: colors
   },
   mutations: {
 
     setSources (state, sources) {
+      if(xTARGETx == 'electron'){
+        sources.unshift(localSource)
+      }
       state.sources = sources
       localStorage.setItem('sources', JSON.stringify(sources))
+    },
+
+    addRoute (state) {
+      var maxId = 0
+      Object.values(state.routes).forEach(function (r) {
+        if(r && r.id > maxId) {
+          maxId = r.id
+        }
+      })
+      var id = maxId + 1
+      var route = {id: id, color: getRouteColor(id)}
+      Vue.set(state.routes, id, route)
+    },
+
+    deleteRoute (state, id) {
+      state.routes[id] = null
     },
 
     startRouting (state, obj) {
@@ -53,7 +86,7 @@ export default new Vuex.Store({
       source.id = obj.id * 100
       source.zIndex = source.id
       source.host = obj.source.host
-      getGeoInfo(source)
+      getGeoInfo(source, localhost)
       var destination = makePoint()
       destination.hop = 'D'
       destination.id = (obj.id + 1) * 100 - 1
@@ -62,6 +95,7 @@ export default new Vuex.Store({
       var route = {id: obj.id, zIndex: obj.id, routing: true, source: source, hops: hops, destination: destination}
       route.color = getRouteColor(route.id)
       if(state.routes[obj.id]){
+        route.color = state.routes[obj.id].color
         state.routes[obj.id] = route
       }else{
         Vue.set(state.routes, obj.id, route)
@@ -85,10 +119,13 @@ export default new Vuex.Store({
         point.hop = obj.hop
         point.ip = obj.ip
         point.host = obj.host
-        point.ttl = obj.ttl
+        point.rtt = obj.rtt
         point.id = route.source.id + point.hop
         point.zIndex = point.id
         route.hops.push(point)
+        route.hops.sort(function(a, b) {
+          return a.hop - b.hop
+        })
         if(point.ip){
           getGeoInfo (point, route.source)
         }
@@ -96,7 +133,8 @@ export default new Vuex.Store({
     },
 
     clearRoute (state, id) {
-      state.routes[id] = null
+      var route = state.routes[id]
+      state.routes[id] = {id: route.id, color: route.color}
     },
 
     putFront (state, obj) {
@@ -122,6 +160,10 @@ export default new Vuex.Store({
 
     toggleSidebar (state) {
       state.sidebar = !state.sidebar
+    },
+
+    setRouteColor (state, obj) {
+      state.routes[obj.id].color = obj.color
     }
   }
 })
@@ -199,6 +241,8 @@ function findPointById (routes, id) {
   var keys = Object.keys(routes)
   for(var i=0;i<keys.length;i++){
     var route = routes[keys[i]]
+    if(!route || !route.source)
+      continue
     if(route.source.id === id){
       return route.source
     }
@@ -220,7 +264,7 @@ function makePoint () {
     hop: null,
     host: '',
     ip: '',
-    ttl: null,
+    rtt: null,
     lat: null,
     lng: null,
     country: '',
@@ -232,7 +276,7 @@ function makePoint () {
   }
 }
 
-function getGeoInfo (point, source) {
+function getGeoInfo (point, defaultInfo) {
   var key = point.ip
   if(!key){
     key = point.host
@@ -248,32 +292,26 @@ function getGeoInfo (point, source) {
       var lat = geo.latitude
       var lng = geo.longitude
       if(isNaN(lat) || isNaN(lng) || (lat===0 && lng===0)){
-        copyFromSource(point, source)
+        copyGeoInfo(point, defaultInfo)
       }else{
-        copyGeoInfo(point, geo)
-        cachedGeo[key] = geo
+        point.lat = lat
+        point.lng = lng
+        point.country = geo.country_name
+        point.region = geo.region_name
+        point.city = geo.city
+        cachedGeo[key] = point
       }
     }, error => {
       console.log('error in get ip and geo')
-      copyFromSource(point, source)
+      copyGeoInfo(point, defaultInfo)
     })
   }
   
   function copyGeoInfo (point, geo) {
-    point.lat = geo.latitude
-    point.lng = geo.longitude
-    point.country = geo.country_name
-    point.region = geo.region_name
+    point.lat = geo.lat
+    point.lng = geo.lng
+    point.country = geo.country
+    point.region = geo.region
     point.city = geo.city
-  }
-
-  function copyFromSource (point, source) {
-    if(source){
-      point.lat = source.lat
-      point.lng = source.lng
-      point.country = source.country
-      point.region = source.region
-      point.city = source.city
-    }
   }
 }
