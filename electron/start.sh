@@ -1,5 +1,5 @@
 #!/bin/sh
 cd ../client
-npm run build
+TARGET=electron npm run build
 cd ../electron
 npm start

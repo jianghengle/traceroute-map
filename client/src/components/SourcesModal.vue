@@ -25,10 +25,10 @@
               <tbody>
                 <tr v-for="(s, i) in sources">
                   <th>{{i+1}}</th>
-                  <td><input class="input" type="text" placeholder="Hostname or IP" v-model="s.host"></td>
-                  <td><input class="input" type="number" placeholder="Port number" v-model.number="s.port"></td>
-                  <td><input class="input" type="text" placeholder="Description" v-model="s.description"></td>
-                  <td class="action-column"><a class="delete delete-button" @click="deleteRow(i)"></a></td>
+                  <td><input class="input" type="text" placeholder="Hostname or IP" v-model="s.host" :class="{'is-static': inElectron && i==0}"></td>
+                  <td><input class="input" type="number" placeholder="Port number" v-model.number="s.port" v-if="!inElectron || i!=0"></td>
+                  <td><input class="input" type="text" placeholder="Description" v-model="s.description" :class="{'is-static': inElectron && i==0}"></td>
+                  <td class="action-column"><a class="delete delete-button" @click="deleteRow(i)" v-if="!inElectron || i!=0"></a></td>
                 </tr>
               </tbody>
             </table>
@@ -51,7 +51,8 @@ export default {
   data () {
     return {
       error: '',
-      sources: []
+      sources: [],
+      inElectron: xTARGETx == 'electron'
     }
   },
   watch: {

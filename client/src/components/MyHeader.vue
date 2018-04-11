@@ -6,7 +6,8 @@
       </div>
 
       <div class="menu">
-        <a class="item-link" href="https://github.com/jianghengle/traceroute-map">
+        <a class="item-link" href="https://github.com/jianghengle/traceroute-map"
+          @click="openExternal('https://github.com/jianghengle/traceroute-map', $event)">
           <icon name="github" scale="1.3" class="item-icon"></icon>
         </a>
         <a class="item-link" @click="toggleSidebar">
@@ -43,6 +44,12 @@ export default {
   methods: {
     toggleSidebar () {
       this.$store.commit('toggleSidebar')
+    },
+    openExternal (url, event) {
+      if(xTARGETx == 'electron'){
+        event.preventDefault()
+        window.require('electron').shell.openExternal(url)
+      }
     }
   }
 }
@@ -53,7 +60,7 @@ export default {
 .header {
   height: 52px;
   width: 100%;
-  background-color: black;
+  background-color: #001f3f;
   padding-left: 16px;
   padding-right: 16px;
 
