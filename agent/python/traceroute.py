@@ -42,6 +42,8 @@ class Traceroute:
                     rtt = (datetime.now() - start).microseconds / 1000.0
                     finished = True
                     curr_addr = curr_addr[0]
+                except KeyboardInterrupt:
+                    raise
                 except:
                     tries = tries - 1
             try:
