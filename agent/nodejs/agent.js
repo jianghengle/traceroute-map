@@ -60,22 +60,19 @@ wss.on('connection', function connection(ws, req) {
       ws.close();
     });
 
-  try{
-    dns.lookup(target, (err, address, family) => {
-      if (err) {
-        throw 'failed to get destination address'
+  dns.lookup(target, (err, address, family) => {
+    if (err) {
+      console.log('failed to get destination address');
+      if(pid){
+        process.kill(pid);
       }
+      ws.close();
+    } else {
       var h = {hop: 'dest', 'host': target, ip: address, rtt: null};
       sendHop(ws, h);
       tracer.trace(target);
-    });
-  } catch (ex) {
-    console.log(ex);
-    if(pid){
-      process.kill(pid);
     }
-    ws.close();
-  }
+  });
 
   ws.on('close', function() {
     console.log('closed by client');
