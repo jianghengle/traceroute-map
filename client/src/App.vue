@@ -19,6 +19,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~bulma/sass/utilities/initial-variables";
+$modal-content-width: 800px;
 @import "~bulma";
 
 body {
