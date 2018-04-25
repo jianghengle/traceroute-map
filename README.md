@@ -6,6 +6,7 @@ Some live agents or sources:
 * planetlab-04.cs.princeton.edu:8000 (Princeton University)
 * 54.201.228.93:8000 (Oregon)
 * planetlab5.ie.cuhk.edu.hk:8000 (Hongkong, China)
+* planetlab1.aut.ac.nz:8000 (New Zealand)
 
 Project diagram:
 ![alt text](https://github.com/jianghengle/traceroute-map/raw/master/traceroute-map.png)
