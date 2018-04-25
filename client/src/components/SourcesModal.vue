@@ -24,20 +24,20 @@
               </thead>
               <tbody>
                 <tr v-for="(s, i) in sources">
-                  <th>{{i+1}}</th>
-                  <td><input class="input" type="text" placeholder="Hostname or IP" v-model="s.host" :class="{'is-static': inElectron && i==0}"></td>
-                  <td><input class="input" type="number" placeholder="Port number" v-model.number="s.port" v-if="!inElectron || i!=0"></td>
+                  <th class="source-number-cell">{{i+1}}</th>
+                  <td><input class="input host-input" type="text" placeholder="Hostname or IP" v-model="s.host" :class="{'is-static': inElectron && i==0}"></td>
+                  <td><input class="input port-number-input" type="number" placeholder="Port number" v-model.number="s.port" v-if="!inElectron || i!=0"></td>
                   <td><input class="input" type="text" placeholder="Description" v-model="s.description" :class="{'is-static': inElectron && i==0}"></td>
                   <td class="action-column"><a class="delete delete-button" @click="deleteRow(i)" v-if="!inElectron || i!=0"></a></td>
                 </tr>
               </tbody>
             </table>
             <div class="buttons-row">
-              <a class="button" @click="addRow">Add Row</a>
+              <a class="button" @click="addRow">Add Source</a>
             </div>
         </section>
         <footer class="modal-card-foot">
-          <a class="button is-link" @click="apply">Apply</a>
+          <a class="button is-link" @click="apply">Save</a>
           <a class="button button-right" @click="close">Cancel</a>
         </footer>
       </div>
@@ -93,7 +93,7 @@ export default {
 
   .delete-button {
     position: relative;
-    top: 5px;
+    top: 8px;
   }
 }
 
@@ -106,5 +106,18 @@ export default {
   right: 0px;
   margin-right: 20px;
 }
+
+.source-number-cell {
+  padding-top: 15px;
+}
+
+.host-input {
+  min-width: 300px;
+}
+
+.port-number-input {
+  width: 85px;
+}
+
 
 </style>

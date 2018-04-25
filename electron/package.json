@@ -2,7 +2,7 @@
   "name": "traceroute-map",
   "productName": "Traceroute Map",
   "description": "Traceroute results on Google Map",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "author": "Hengle Jiang <jianghengle@gmail.com>",
   "copyright": "MIT",

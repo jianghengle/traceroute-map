@@ -48,16 +48,17 @@ function makeTraceroute (destination, onhop, onclose) {
     });
 
   traceroute.start = function () {
-    try {
-      dns.lookup(traceroute.destination, (err, address, family) => {
+    dns.lookup(traceroute.destination, (err, address, family) => {
+      if (err) {
+        console.log('failed to get destination address');
+        traceroute.pid = null;
+        traceroute.onclose();
+      } else {
         var hop = {hop: 'dest', 'host': traceroute.destination, ip: address, rtt: null}
         traceroute.onhop(hop);
-      });
-      traceroute.tracer.trace(traceroute.destination);
-    } catch (ex) {
-      traceroute.pid = null;
-      console.log(ex);
-    }
+        traceroute.tracer.trace(traceroute.destination);
+      }
+    });
   }
 
   traceroute.stop = function () {

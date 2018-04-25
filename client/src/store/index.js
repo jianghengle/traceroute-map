@@ -51,7 +51,7 @@ export default new Vuex.Store({
   state: {
     sources: sources,
     routes: {1: {id: 1, color: colors[0]}},
-    sidebar: false,
+    sidebar: localStorage.getItem('sidebar') === 'true',
     colors: colors
   },
   mutations: {
@@ -160,6 +160,7 @@ export default new Vuex.Store({
 
     toggleSidebar (state) {
       state.sidebar = !state.sidebar
+      localStorage.setItem('sidebar', state.sidebar.toString())
     },
 
     setRouteColor (state, obj) {
