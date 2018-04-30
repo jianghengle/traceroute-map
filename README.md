@@ -14,7 +14,7 @@ Application release:
   * Click the "cog" button on the header to add/change traceroute sources
   * Click the "columns" button on the header to change the view mode
 
-Traceroute agent release, usage: ./agent [port], the default port is 8000:
+Traceroute agent release, usage: `./agent [port]`, the default port is 8000:
 * [Linux 32bit](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/agent)
 * [Linux 64bit](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/agent-linux)
 * [Mac OS](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/agent-macos)
