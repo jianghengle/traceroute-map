@@ -8,6 +8,11 @@ Application release:
 * [Online Live Demo](http://traceroute-map.s3-website.us-east-2.amazonaws.com/)
 * [Mac OS installer](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/Traceroute.Map-0.0.2.dmg)
 * [Windows installer](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/Traceroute.Map.Setup.0.0.2.exe)
+* Screen Shot:
+  ![Screen Shot](https://github.com/jianghengle/traceroute-map/raw/master/app-screen-shot.png)
+  * Show multiple traceroutes on the map
+  * Click the "cog" button on the header to add/change traceroute sources
+  * Click the "columns" button on the header to change the view mode
 
 Traceroute agent release, usage: ./agent [port], the default port is 8000:
 * [Linux 32bit](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/agent)
