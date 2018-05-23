@@ -14,6 +14,8 @@ const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 
 var target = process.env.TARGET
+var googleKey = process.env.GOOGLE_KEY
+var ipstackKey = process.env.IPSTACK_KEY
 
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
@@ -50,6 +52,8 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env'),
       'xTARGETx': JSON.stringify(target),
+      'xGOOGLEKEYx': JSON.stringify(googleKey),
+      'xIPSTACKKEYx': JSON.stringify(ipstackKey),
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.

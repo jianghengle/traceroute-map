@@ -30,7 +30,7 @@ if(xTARGETx == 'electron'){
 var localhost = {ip: '', latitude: null, longitude: null, country_name: '', region_name: '', city: ''}
 Vue.http.get('https://api.ipify.org?format=json').then(resp => {
   localhost.ip = resp.body.ip
-  Vue.http.get('http://freegeoip.net/json/' + localhost.ip).then(resp => {
+  Vue.http.get('http://api.ipstack.com/' + localhost.ip + '?access_key=' + xIPSTACKKEYx).then(resp => {
     var geo = resp.body
     localhost.lat = geo.latitude
     localhost.lng = geo.longitude
@@ -287,11 +287,11 @@ function getGeoInfo (point, defaultInfo) {
     point.ip = geo.ip
     copyGeoInfo (point, geo)
   }else{
-    Vue.http.get('http://freegeoip.net/json/' + key).then(resp => {
+    Vue.http.get('http://api.ipstack.com/' + key + '?access_key=' + xIPSTACKKEYx).then(resp => {
       var geo = resp.body
       point.ip = geo.ip
-      var lat = geo.latitude
-      var lng = geo.longitude
+      var lat = parseFloat(geo.latitude)
+      var lng = parseFloat(geo.longitude)
       if(isNaN(lat) || isNaN(lng) || (lat===0 && lng===0)){
         copyGeoInfo(point, defaultInfo)
       }else{

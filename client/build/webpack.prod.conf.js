@@ -14,6 +14,8 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const env = require('../config/prod.env')
 
 var target = process.env.TARGET
+var googleKey = process.env.GOOGLE_KEY
+var ipstackKey = process.env.IPSTACK_KEY
 
 const webpackConfig = merge(baseWebpackConfig, {
   module: {
@@ -33,7 +35,9 @@ const webpackConfig = merge(baseWebpackConfig, {
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin({
       'process.env': env,
-      'xTARGETx': JSON.stringify(target)
+      'xTARGETx': JSON.stringify(target),
+      'xGOOGLEKEYx': JSON.stringify(googleKey),
+      'xIPSTACKKEYx': JSON.stringify(ipstackKey),
     }),
     new UglifyJsPlugin({
       uglifyOptions: {

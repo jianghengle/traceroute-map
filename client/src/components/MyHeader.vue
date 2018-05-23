@@ -10,7 +10,7 @@
           @click="openExternal('https://github.com/jianghengle/traceroute-map', $event)">
           <icon name="github" scale="1.3" class="item-icon"></icon>
         </a>
-        <a class="item-link" @click="toggleSidebar">
+        <a class="item-link is-hidden-mobile" @click="toggleSidebar">
           <icon name="columns" scale="1.3" class="item-icon"></icon>
         </a>
         <a class="item-link" @click="sourcesModal.opened = true">
