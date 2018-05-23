@@ -6,8 +6,7 @@ Project diagram:
 
 Application release:
 * [Online Live Demo](http://traceroute-map.s3-website.us-east-2.amazonaws.com/)
-* [Mac OS installer](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/Traceroute.Map-0.0.2.dmg)
-* [Windows installer](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.2/Traceroute.Map.Setup.0.0.2.exe)
+* [Mac OS installer](https://github.com/jianghengle/traceroute-map/releases/download/v0.0.3/Traceroute.Map-0.0.3.dmg)
 * Screen Shot:
   ![Screen Shot](https://github.com/jianghengle/traceroute-map/raw/master/app-screen-shot.png)
   * Show multiple traceroutes on the map
@@ -22,10 +21,7 @@ Traceroute agent release, usage: `./agent [port]`, the default port is 8000:
 
 Some maybe live traceroute sources or agents:
 * 129.93.175.20:8000 (An anvil vm in University of Nebraska-Lincoln)
-* planetlab-04.cs.princeton.edu:8000 (Princeton University)
 * 54.201.228.93:8000 (Oregon)
-* planetlab5.ie.cuhk.edu.hk:8000 (Hongkong, China)
-* planetlab1.aut.ac.nz:8000 (New Zealand)
 
 Three directories:
 * agent: traceroute + websocket server
